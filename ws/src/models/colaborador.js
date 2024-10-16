@@ -39,39 +39,10 @@ const colaborador = new Schema({
     required: true,
     default: 'A',
   },
-  contaBancaria: {
-    titular: {
-      type: String,
-      required: true,
-    },
-    cpfCnpj: {
-      type: String,
-      required: true,
-    },
-    banco: {
-      type: String,
-      required: true,
-    },
-    tipo: {
-      type: String,
-      required: true,
-    },
-    agencia: {
-      type: String,
-      required: true,
-    },
-    numero: {
-      type: String,
-      required: true,
-    },
-    dv: {
-      type: String,
-      required: true,
-    },
-  },
-  recipientId: {
+  cpf: {
     type: String,
     required: true,
+    unique: true, 
   },
   dataCadastro: {
     type: Date,
