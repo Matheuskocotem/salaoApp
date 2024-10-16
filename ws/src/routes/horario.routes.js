@@ -11,7 +11,6 @@ router.post('/', async (req, res) => {
 
     // SE NÃO HOVER, CADASTRA
     await new Horario(req.body).save();
-
     res.json({ error: false });
   } catch (err) {
     res.json({ error: true, message: err.message });
