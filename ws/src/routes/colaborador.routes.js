@@ -1,15 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
-
 const router = express.Router();
 const Colaborador = require('../models/colaborador');
 const SalaoColaborador = require('../models/relationship/salaoColaborador');
 const ColaboradorServico = require('../models/relationship/colaboradorServico');
 const moment = require('moment');
 
-/*
-  FAZER NA #01
-*/
 router.post('/', async (req, res) => {
   const db = mongoose.connection;
   const session = await db.startSession();
@@ -23,46 +19,17 @@ router.post('/', async (req, res) => {
       $or: [
         { email: colaborador.email },
         { telefone: colaborador.telefone },
-        //{ cpf: colaborador.cpf },
+        { cpf: colaborador.cpf },  // Verifique também o CPF
       ],
     });
 
     if (!existentColaborador) {
-      // CRIANDO A CONTA BANCÁRIA
-      const { contaBancaria } = colaborador;
-      const pagarmeBankAccount = await pagarme('/bank_accounts', {
-        bank_code: contaBancaria.banco,
-        document_number: contaBancaria.cpfCnpj,
-        agencia: contaBancaria.agencia,
-        conta: contaBancaria.numero,
-        conta_dv: contaBancaria.dv,
-        legal_name: contaBancaria.titular,
-      });
-
-      if (pagarmeBankAccount.error) {
-        throw pagarmeBankAccount;
-      }
-
-      // CRIANDO RECEBEDOR
-      const pargarmeReceiver = await pagarme('/recipients', {
-        bank_account_id: pagarmeBankAccount.data.id,
-        transfer_interval: 'daily',
-        transfer_enabled: true,
-      });
-
-      if (pagarmeBankAccount.error) {
-        throw pargarmeReceiver;
-      }
-
-      newColaborador = await new Colaborador({
-        ...colaborador,
-        recipientId: pargarmeReceiver.data.id,
-      }).save({ session });
+      newColaborador = await new Colaborador(colaborador).save({ session });
+    } else {
+      return res.json({ error: true, message: 'Colaborador já cadastrado!' });
     }
 
-    const colaboradorId = existentColaborador
-      ? existentColaborador._id
-      : newColaborador._id;
+    const colaboradorId = existentColaborador ? existentColaborador._id : newColaborador._id;
 
     // RELAÇÃO COM O SALÃO
     const existentRelationship = await SalaoColaborador.findOne({
@@ -76,14 +43,9 @@ router.post('/', async (req, res) => {
         colaboradorId,
         status: colaborador.vinculo,
       }).save({ session });
-    }
-
-    if (existentRelationship && existentRelationship.status === 'I') {
-      await SalaoColaborador.findOneAndUpdate(
-        {
-          salaoId,
-          colaboradorId,
-        },
+    } else if (existentRelationship.status === 'I') {
+      await SalaoColaborador.findByIdAndUpdate(
+        existentRelationship._id,
         { status: 'A' },
         { session }
       );
@@ -99,12 +61,7 @@ router.post('/', async (req, res) => {
 
     await session.commitTransaction();
     session.endSession();
-
-    if (existentRelationship && existentColaborador) {
-      res.json({ error: true, message: 'Colaborador já cadastrado!' });
-    } else {
-      res.json({ error: false });
-    }
+    res.json({ error: false });
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
@@ -112,9 +69,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-/*
-  FAZER NA #01
-*/
 router.post('/filter', async (req, res) => {
   try {
     const colaboradores = await Colaborador.find(req.body.filters);
@@ -124,14 +78,9 @@ router.post('/filter', async (req, res) => {
   }
 });
 
-/*
-  FAZER NA #01
-*/
 router.get('/salao/:salaoId', async (req, res) => {
   try {
     const { salaoId } = req.params;
-    let listaColaboradores = [];
-
     const colaboradores = await SalaoColaborador.find({
       salaoId,
       status: { $ne: 'E' },
@@ -139,16 +88,15 @@ router.get('/salao/:salaoId', async (req, res) => {
       .populate('colaboradorId')
       .select('colaboradorId dataCadastro status');
 
-    for (let colaborador of colaboradores) {
+    const listaColaboradores = await Promise.all(colaboradores.map(async (colaborador) => {
       const especialidades = await ColaboradorServico.find({
         colaboradorId: colaborador.colaboradorId._id,
       });
-
-      listaColaboradores.push({
+      return {
         ...colaborador._doc,
         especialidades: especialidades.map((e) => e.servicoId),
-      });
-    }
+      };
+    }));
 
     res.json({
       error: false,
@@ -165,9 +113,6 @@ router.get('/salao/:salaoId', async (req, res) => {
   }
 });
 
-/*
-  FAZER NA #01
-*/
 router.put('/:colaboradorId', async (req, res) => {
   try {
     const { vinculo, vinculoId, especialidades } = req.body;
@@ -182,9 +127,7 @@ router.put('/:colaboradorId', async (req, res) => {
 
     // ATUALIZANDO ESPECIALIDADES
     if (especialidades) {
-      await ColaboradorServico.deleteMany({
-        colaboradorId,
-      });
+      await ColaboradorServico.deleteMany({ colaboradorId });
 
       await ColaboradorServico.insertMany(
         especialidades.map((servicoId) => ({
@@ -200,9 +143,6 @@ router.put('/:colaboradorId', async (req, res) => {
   }
 });
 
-/*
-  FAZER NA #01
-*/
 router.delete('/vinculo/:id', async (req, res) => {
   try {
     await SalaoColaborador.findByIdAndUpdate(req.params.id, { status: 'E' });
