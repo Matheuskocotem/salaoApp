@@ -1,3 +1,5 @@
+import {BrowserRouter as Router, Switch, Route} from 'react-router-dom'
+
 import './styles.css'
 
 import Header from "./components/Header";
@@ -9,7 +11,9 @@ const Routes = () => {
             <Header/>
             <div className="container-fluid h-100">
                 <div className="row h-100">
-                    <Sidebar/>
+                    <Router>
+                        <Sidebar/>
+                    </Router>
                 </div>
             
             </div>
