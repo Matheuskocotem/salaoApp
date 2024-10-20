@@ -15,6 +15,7 @@ router.post('/', async (req, res) => {
     const { cliente, salaoId } = req.body;
     let newClient = null;
 
+    // Verificar se o cliente já existe pelo e-mail ou telefone
     const existentClient = await Cliente.findOne({
       $or: [
         { email: cliente.email },
@@ -23,46 +24,29 @@ router.post('/', async (req, res) => {
       ],
     });
 
+    // Se o cliente não existir, criar um novo
     if (!existentClient) {
-      const _id = mongoose.Types.ObjectId();
-      const cliente = req.body.cliente;
-      console.log(cliente);
-      const pagarmeCliente = await pagarme('/customers', {
-        external_id: _id,
-        name: cliente.nome,
-        type: cliente.documento.tipo === 'cpf' ? 'individual' : 'corporation',
-        country: 'br',
-        email: cliente.email,
-        documents: [
-          {
-            type: cliente.documento.tipo,
-            number: cliente.documento.numero,
-          },
-        ],
-        phone_numbers: ['+55' + cliente.telefone],
-        birthday: cliente.dataNascimento,
-      });
+      const _id = new mongoose.Types.ObjectId();  // Gera um novo ID para o cliente
+      const clienteData = req.body.cliente;
+      console.log(clienteData);
 
-      console.log(pagarmeCliente);
-
-      if (pagarmeCliente.error) {
-        throw pagarmeCliente;
-      }
-
+      // Criação do cliente diretamente no banco de dados
       newClient = await new Cliente({
         _id,
-        ...cliente,
-        customerId: pagarmeCliente.data.id,
+        ...clienteData,
       }).save({ session });
     }
 
+    // Obter o ID do cliente (se já existia, pegar o existente, caso contrário, o novo cliente)
     const clienteId = existentClient ? existentClient._id : newClient._id;
 
+    // Verificar se já existe um relacionamento entre o salão e o cliente
     const existentRelationship = await SalaoCliente.findOne({
       salaoId,
       clienteId,
     });
 
+    // Se não houver relacionamento, criar um novo
     if (!existentRelationship) {
       await new SalaoCliente({
         salaoId,
@@ -70,6 +54,7 @@ router.post('/', async (req, res) => {
       }).save({ session });
     }
 
+    // Se o relacionamento existir, mas o status for "Inativo", atualizar para "Ativo"
     if (existentRelationship && existentRelationship.status === 'I') {
       await SalaoCliente.findOneAndUpdate(
         {
@@ -81,9 +66,11 @@ router.post('/', async (req, res) => {
       );
     }
 
+    // Commit da transação
     await session.commitTransaction();
     session.endSession();
 
+    // Resposta para o cliente
     if (
       existentRelationship &&
       existentRelationship.status === 'A' &&
@@ -94,11 +81,13 @@ router.post('/', async (req, res) => {
       res.json({ error: false });
     }
   } catch (err) {
+    // Em caso de erro, abortar a transação e retornar o erro
     await session.abortTransaction();
     session.endSession();
     res.json({ error: true, message: err.message });
   }
 });
+
 
 router.post('/filter', async (req, res) => {
   try {
