@@ -46,10 +46,6 @@ const cliente = new Schema({
       required: true,
     },
   },
-  customerId: {
-    type: String,
-    required: true,
-  },
   endereco: {
     cidade: String,
     uf: String,
