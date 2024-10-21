@@ -7,6 +7,7 @@ import Sidebar from "./components/Sidebar";
 
 import Agendamentos from "./pages/Agendamentos";
 import Clientes from "./pages/Clientes";
+import Login from "./pages/User";
 
 const AppRoutes = () => {
   return (
@@ -20,6 +21,7 @@ const AppRoutes = () => {
               <Routes>
                 <Route path="/" element={<Agendamentos />} />
                 <Route path="/clientes" element={<Clientes />} />
+                <Route path="/login" element={<Login />} />
               </Routes>
             </main>
           </Router>
