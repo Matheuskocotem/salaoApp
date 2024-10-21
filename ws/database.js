@@ -5,6 +5,8 @@ const URI = '';  // mongodb+srv://salaoUser:brIBzx32MiodJOD3@cluster0.lky72.mong
 const env = process.env.NODE_ENV || 'dev';
 let options = {
   useUnifiedTopology: true, 
+  useNewUrlParser: true,
+
 };
 
 mongoose
