@@ -1,23 +1,30 @@
 import React, { useState } from 'react';
+import api from '../../services/api'; 
 
 const Login = () => {
-  const [cpf, setCpf] = useState('');
+  const [userType, setUserType] = useState('cliente');
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Simulação de login com credenciais fixas
-    const mockCpf = '12345678900';
-    const mockPassword = 'senha123';
+    const endpoint = userType === 'cliente' ? '/cliente/login' : '/salao/login';
 
-    if (cpf === mockCpf && password === mockPassword) {
-      setIsLoggedIn(true);
-    } else {
-      setError('CPF ou senha incorretos. Tente novamente.');
+    try {
+      const response = await api.post(endpoint, { email, senha: password }); 
+
+      if (response.data.error) {
+        setError(response.data.message || 'Erro ao fazer login. Tente novamente.');
+      } else {
+        localStorage.setItem('token', response.data.token);
+        setIsLoggedIn(true);
+      }
+    } catch (err) {
+      setError('Erro ao conectar à API. Tente novamente.');
     }
   };
 
@@ -32,13 +39,26 @@ const Login = () => {
             {error && <div className="alert alert-danger">{error}</div>}
             <form onSubmit={handleLogin}>
               <div className="mb-3">
-                <label htmlFor="cpf" className="form-label">CPF</label>
+                <label htmlFor="userType" className="form-label">Tipo de Usuário</label>
+                <select
+                  id="userType"
+                  className="form-select"
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
+                  required
+                >
+                  <option value="cliente">Cliente</option>
+                  <option value="salao">Salão</option>
+                </select>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email</label> {/* Alterado de CPF para Email */}
                 <input
-                  type="text"
+                  type="email" 
                   className="form-control"
-                  id="cpf"
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
+                  id="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)} 
                   required
                 />
               </div>
