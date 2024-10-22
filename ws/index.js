@@ -14,7 +14,7 @@ app.use(busboyBodyParser());
 app.use(express.json());
 app.use(cors());
 
-app.set('port', 8001);
+app.set('port', 8000);
 
 /* ROTAS */
 app.use('/salao', require('./src/routes/salao.routes.js'));
