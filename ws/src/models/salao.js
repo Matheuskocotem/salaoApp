@@ -5,8 +5,8 @@ const salao = new Schema({
   nome: String,
   foto: String,
   capa: String,
-  email: String,
-  senha: String,
+  email: { type: String, required: true, unique: true }, 
+  senha: { type: String, required: true },
   telefone: String,
   recipientId: String,
   endereco: {

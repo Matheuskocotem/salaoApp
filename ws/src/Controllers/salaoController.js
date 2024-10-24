@@ -45,9 +45,9 @@ exports.loginSalao = async (req, res) => {
 
     // Gerar um token JWT com o ID do salão
     const token = jwt.sign(
-      { id: salao._id, userType: 'salao' },  // Payload do token (pode adicionar mais dados se necessário)
+      { id: salao._id, userType: 'salao' },  // Payload do token
       process.env.JWT_SECRET || 'seu_segredo',  // Chave secreta para assinar o token
-      { expiresIn: '1h' }  // Tempo de expiração do token (neste caso, 1 hora)
+      { expiresIn: '1h' }  // Tempo de expiração do token
     );
 
     // Retornar o token e os dados do salão (sem a senha)
@@ -58,7 +58,8 @@ exports.loginSalao = async (req, res) => {
     });
   } catch (err) {
     // Caso ocorra algum erro interno
-    res.status(500).json({ error: true, message: err.message });
+    console.error(err); // Para fins de depuração
+    res.status(500).json({ error: true, message: 'Erro interno do servidor' });
   }
 };
 
