@@ -22,6 +22,7 @@ app.use('/cliente', require('./src/routes/cliente.routes.js'));
 app.use('/servico', require('./src/routes/servico.routes.js'));
 app.use('/colaborador', require('./src/routes/colaborador.routes.js'));
 app.use('/horario', require('./src/routes/horario.routes.js'));
+app.use('/agendamentos', require('./src/routes/agendamento.routes.js'));
 
 app.listen(app.get('port'), function () {
     console.log('WS escutando porta ' + app.get('port'));
