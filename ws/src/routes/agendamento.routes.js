@@ -3,7 +3,7 @@ const router = express.Router();
 const agendamentoController = require('../Controllers/agendamentoController');
 
 // Filtro de agendamentos
-router.post('/filter', agendamentoController.filterAgendamentos);
+router.get('/filter', agendamentoController.filterAgendamentos);
 
 // Criação de agendamento
 router.post('/', agendamentoController.createAgendamento);
