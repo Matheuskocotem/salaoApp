@@ -18,6 +18,12 @@ const Sidebar = () => {
             <span>Clientes</span>
           </Link>
         </li>
+        <li>
+          <Link to="/Colaboradores">
+            <span className="mdi mdi-account-multiple"></span>
+            <span>Colaboradores</span>
+          </Link>
+        </li>
       </ul>
     </aside>
   );
