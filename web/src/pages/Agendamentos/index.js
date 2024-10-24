@@ -36,7 +36,7 @@ const Agendamentos = () => {
         end: moment().weekday(6).format('YYYY-MM-DD'),
       })
     );
-  }, []);
+  }, [dispatch]);
 
   const formatRange = (range) => {
     let finalRange = {};
