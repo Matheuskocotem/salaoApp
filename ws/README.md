@@ -41,7 +41,7 @@ Este é um sistema de agendamento de horários desenvolvido com Node.js, projeta
 -DELETE /api/appointments/:id - Cancela um agendamento.
 
 
-## Uso
+## Autenticação
 O sistema utiliza um método de autenticação baseado em tokens (ex: JWT ou outra abordagem conforme sua implementação).
 
 ## Contribuição
