@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
 
 import './styles.css';
 
@@ -7,27 +8,46 @@ import Sidebar from "./components/Sidebar";
 
 import Agendamentos from "./pages/Agendamentos";
 import Clientes from "./pages/Clientes";
-import Login from "./pages/User";
+import Login from "./components/Salao/Login";
 
 const AppRoutes = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   return (
-    <>
-      <Header />
-      <div className="container-fluid h-100">
-        <div className="row h-100">
-          <Router>
-            <Sidebar />
-            <main className="col">
-              <Routes>
-                <Route path="/" element={<Agendamentos />} />
-                <Route path="/clientes" element={<Clientes />} />
-                <Route path="/login" element={<Login />} />
-              </Routes>
-            </main>
-          </Router>
-        </div>
-      </div>
-    </>
+    <Router>
+      <Routes>
+        {/* Rota de Login */}
+        <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
+
+        {/* Rotas protegidas */}
+        <Route 
+          path="*"
+          element={
+            isAuthenticated ? (
+              <>
+                <Header />
+                <div className="container-fluid h-100">
+                  <div className="row h-100">
+                    <Sidebar />
+                    <main className="col">
+                      <Routes>
+                        <Route path="/" element={<Agendamentos />} />
+                        <Route path="/clientes" element={<Clientes />} />
+                        {/* Redireciona para a página de login se não estiver autenticado */}
+                        <Route path="*" element={<Navigate to="/" />} />
+                      </Routes>
+                    </main>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Redireciona para a página de login se não estiver autenticado
+              <Navigate to="/login" />
+            )
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 
