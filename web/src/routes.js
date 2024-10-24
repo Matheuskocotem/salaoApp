@@ -33,7 +33,6 @@ const AppRoutes = () => {
                       <Routes>
                         <Route path="/" element={<Agendamentos />} />
                         <Route path="/clientes" element={<Clientes />} />
-                        {/* Redireciona para a página de login se não estiver autenticado */}
                         <Route path="*" element={<Navigate to="/" />} />
                       </Routes>
                     </main>
