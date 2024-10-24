@@ -10,3 +10,7 @@ router.get('/servicos/:salaoId', authMiddleware, salaoMiddleware, salaoControlle
 router.post('/filter/:id', authMiddleware, salaoMiddleware, salaoController.filterSalao);
 
 module.exports = router;
+
+//http://localhost:8000/salao/login
+
+
