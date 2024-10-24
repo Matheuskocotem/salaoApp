@@ -14,7 +14,7 @@ Este é um sistema de agendamento de horários desenvolvido com Node.js, projeta
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
+   git clone https://github.com/seu-usuario/seu-repositorio.git](https://github.com/Matheuskocotem/salaoApp.git
 
 2. Navegue até a pasta do projeto:
    ```bash
