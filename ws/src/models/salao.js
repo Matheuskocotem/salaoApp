@@ -25,6 +25,7 @@ const salao = new Schema({
     type: Date,
     default: Date.now,
   },
+  token: { type: String } 
 });
 
 salao.index({ coordenadas: '2dsphere' });
